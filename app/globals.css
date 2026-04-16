@@ -1,26 +1,47 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Amazon color palette */
+  --amz-dark:        #131921;
+  --amz-navy:        #232F3E;
+  --amz-orange:      #FF9900;
+  --amz-yellow:      #FFD814;
+  --amz-yellow-hover:#F7CA00;
+  --amz-teal:        #007185;
+  --amz-teal-hover:  #C7F0F8;
+  --amz-bg:          #EAEDED;
+  --amz-border:      #D5D9D9;
+  --amz-text:        #0F1111;
+  --amz-text-muted:  #565959;
+  --amz-link:        #007185;
+  --amz-link-hover:  #C45500;
+  --amz-red:         #CC0C39;
+  --amz-green:       #067D62;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), "Amazon Ember", Arial, system-ui, sans-serif;
+  background-color: var(--amz-bg);
+  color: var(--amz-text);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Amazon-style focus ring */
+*:focus-visible {
+  outline: 3px solid var(--amz-orange);
+  outline-offset: 2px;
+}
+
+/* Amazon-style link */
+a {
+  color: var(--amz-link);
+}
+a:hover {
+  color: var(--amz-link-hover);
+  text-decoration: underline;
 }

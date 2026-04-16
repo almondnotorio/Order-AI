@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Suppress the Prisma generated client deprecation notices
+  serverExternalPackages: ["@prisma/client", "prisma"],
+  experimental: {},
 };
 
 export default nextConfig;
