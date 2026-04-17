@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -12,6 +12,9 @@ const navLinks = [
 
 export function CustomerNav() {
   const pathname = usePathname();
+  const { user } = useUser();
+  const role = (user?.publicMetadata?.role as string) ?? "customer";
+  const isAdmin = role === "admin";
 
   return (
     <header style={{ backgroundColor: "var(--amz-dark)" }}>
@@ -62,24 +65,19 @@ export function CustomerNav() {
             })}
           </nav>
 
-          {/* Right side */}
-          <div className="ml-auto flex items-center gap-4">
-            <Link
-              href="/orders/new"
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-1.5 text-sm font-bold rounded"
-              style={{
-                backgroundColor: "var(--amz-yellow)",
-                color: "var(--amz-text)",
-                border: "1px solid #FCD200",
-                textDecoration: "none",
-              }}
+          {/* Right side — user avatar + role badge */}
+          <div className="ml-auto flex items-center gap-2">
+            <UserButton />
+            <span
+              className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold uppercase tracking-wide"
+              style={
+                isAdmin
+                  ? { backgroundColor: "var(--amz-orange)", color: "#fff" }
+                  : { backgroundColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.75)" }
+              }
             >
-              + Place Order
-            </Link>
-            <div className="flex items-center gap-2 px-2 py-1 rounded border border-transparent hover:border-white transition-colors cursor-pointer">
-              <UserButton />
-              <span className="hidden sm:block text-xs text-gray-300">Account</span>
-            </div>
+              {isAdmin ? "Admin" : "Customer"}
+            </span>
           </div>
         </div>
       </div>
