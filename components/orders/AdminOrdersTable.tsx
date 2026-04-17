@@ -139,6 +139,7 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: Order[] }) 
       !search ||
       o.raw_input.toLowerCase().includes(search.toLowerCase()) ||
       o.user.email.toLowerCase().includes(search.toLowerCase()) ||
+      (o.user.name ?? "").toLowerCase().includes(search.toLowerCase()) ||
       (o.matched_sku?.sku_code ?? "").toLowerCase().includes(search.toLowerCase());
     return matchesStatus && matchesSearch;
   });
@@ -234,6 +235,11 @@ export function AdminOrdersTable({ initialOrders }: { initialOrders: Order[] }) 
                     </svg>
                   </td>
                   <td className="px-4 py-3">
+                    {order.user.name && (
+                      <div className="text-sm font-medium" style={{ color: "var(--amz-text)" }}>
+                        {order.user.name}
+                      </div>
+                    )}
                     <div className="text-xs" style={{ color: "var(--amz-text-muted)" }}>
                       {order.user.email}
                     </div>

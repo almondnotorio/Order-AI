@@ -4,7 +4,6 @@ import { AdminOrdersTable } from "@/components/orders/AdminOrdersTable";
 export default async function AdminOrdersPage() {
   const orders = await prisma.order.findMany({
     orderBy: { created_at: "desc" },
-    take: 200,
     include: {
       matched_sku: true,
       user: { select: { id: true, email: true, name: true } },
