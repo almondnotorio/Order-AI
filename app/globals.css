@@ -3,22 +3,32 @@
 :root {
   --font-sans: var(--font-geist-sans);
 
-  /* Amazon color palette */
-  --amz-dark:        #131921;
-  --amz-navy:        #232F3E;
+  /* Brand palette */
+  --brand-sidebar:   #1C1C1C;
+  --brand-accent:    #C04A2C;
+  --brand-accent-hover: #A33D22;
+  --brand-bg:        #F0EDE6;
+  --brand-card:      #FFFFFF;
+  --brand-border:    #E5DFD5;
+  --brand-text:      #1A1A1A;
+  --brand-muted:     #888888;
+
+  /* Legacy aliases (keep for shared components) */
+  --amz-dark:        #1C1C1C;
+  --amz-navy:        #1C1C1C;
   --amz-orange:      #FF9900;
   --amz-yellow:      #FFD814;
   --amz-yellow-hover:#F7CA00;
-  --amz-teal:        #007185;
-  --amz-teal-hover:  #C7F0F8;
-  --amz-bg:          #EAEDED;
-  --amz-border:      #D5D9D9;
-  --amz-text:        #0F1111;
-  --amz-text-muted:  #565959;
-  --amz-link:        #007185;
-  --amz-link-hover:  #C45500;
-  --amz-red:         #CC0C39;
-  --amz-green:       #067D62;
+  --amz-teal:        #0891B2;
+  --amz-teal-hover:  #E0F2FE;
+  --amz-bg:          #F0EDE6;
+  --amz-border:      #E5DFD5;
+  --amz-text:        #1A1A1A;
+  --amz-text-muted:  #888888;
+  --amz-link:        #2563EB;
+  --amz-link-hover:  #C04A2C;
+  --amz-red:         #DC2626;
+  --amz-green:       #16A34A;
 }
 
 body {

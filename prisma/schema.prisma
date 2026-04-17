@@ -136,8 +136,9 @@ model Order {
   flags            Json?
   ai_raw_response  Json?
 
-  status       OrderStatus  @default(PENDING)
+  status        OrderStatus  @default(PENDING)
   delivery_type DeliveryType @default(STANDARD)
+  admin_remark  String?
 
   created_at   DateTime  @default(now())
   updated_at   DateTime  @updatedAt

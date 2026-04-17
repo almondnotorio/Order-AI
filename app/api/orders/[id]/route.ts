@@ -77,6 +77,9 @@ export async function PUT(req: NextRequest, { params }: Params) {
         ? { matched_sku_id: parsed.data.matched_sku_id }
         : {}),
       ...(parsed.data.delivery_type ? { delivery_type: parsed.data.delivery_type } : {}),
+      ...(parsed.data.admin_remark !== undefined
+        ? { admin_remark: parsed.data.admin_remark || null }
+        : {}),
     },
     include: {
       matched_sku: true,

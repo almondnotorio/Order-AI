@@ -30,6 +30,7 @@ export default async function CustomerOrdersPage() {
     "Attributes",
     "Confidence",
     "Status",
+    "Remark",
     "Date",
   ];
 
@@ -205,6 +206,24 @@ export default async function CustomerOrdersPage() {
                     {/* Status */}
                     <td className="px-5 py-3.5">
                       <OrderStatusBadge status={order.status} />
+                    </td>
+
+                    {/* Admin remark */}
+                    <td className="px-5 py-3.5 hidden lg:table-cell max-w-[200px]">
+                      {order.admin_remark ? (
+                        <span
+                          className="text-xs"
+                          style={{
+                            color: order.status === "APPROVED" ? "#166534" : order.status === "REJECTED" ? "#991B1B" : "var(--amz-text-muted)",
+                          }}
+                        >
+                          {order.admin_remark.length > 60
+                            ? order.admin_remark.slice(0, 60) + "…"
+                            : order.admin_remark}
+                        </span>
+                      ) : (
+                        <span className="text-xs" style={{ color: "var(--amz-text-muted)" }}>—</span>
+                      )}
                     </td>
 
                     {/* Date */}

@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
@@ -15,6 +15,9 @@ export default async function CustomerOrderDetailPage({ params }: Params) {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
+  const viewer = await currentUser();
+  const isAdmin = viewer?.publicMetadata?.role === "admin";
+
   const { id } = await params;
 
   const order = await prisma.order.findUnique({
@@ -22,7 +25,7 @@ export default async function CustomerOrderDetailPage({ params }: Params) {
     include: { matched_sku: true },
   });
 
-  if (!order || order.user_id !== userId) notFound();
+  if (!order || (!isAdmin && order.user_id !== userId)) notFound();
 
   return (
     <div className="space-y-6">
@@ -83,6 +86,34 @@ export default async function CustomerOrderDetailPage({ params }: Params) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Admin decision remark */}
+      {(order.status === "APPROVED" || order.status === "REJECTED") && order.admin_remark && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Admin Decision</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div
+              className="flex items-start gap-3 rounded-lg px-4 py-3"
+              style={{
+                backgroundColor: order.status === "APPROVED" ? "#DCFCE7" : "#FEE2E2",
+                border: `1px solid ${order.status === "APPROVED" ? "#86EFAC" : "#FCA5A5"}`,
+              }}
+            >
+              <span
+                className="mt-0.5 text-xs font-bold uppercase tracking-wider"
+                style={{ color: order.status === "APPROVED" ? "#166534" : "#991B1B" }}
+              >
+                {order.status === "APPROVED" ? "Approved" : "Rejected"}
+              </span>
+              <p className="text-sm" style={{ color: order.status === "APPROVED" ? "#166534" : "#991B1B" }}>
+                {order.admin_remark}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {order.ai_status === "COMPLETE" || order.ai_status === "FAILED" ? (
         <div className="space-y-4">

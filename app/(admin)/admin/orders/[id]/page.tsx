@@ -47,7 +47,7 @@ export default async function AdminOrderDetailPage({ params }: Params) {
           <AIStatusBadge status={order.ai_status} />
           <ConfidenceBadge score={order.confidence_score} />
         </div>
-        <AdminOrderActions orderId={order.id} currentStatus={order.status} />
+        <AdminOrderActions orderId={order.id} currentStatus={order.status} currentRemark={order.admin_remark} />
       </div>
 
       {/* Customer + Timestamps */}
@@ -116,6 +116,28 @@ export default async function AdminOrderDetailPage({ params }: Params) {
       </div>
 
       <FlagsCard flags={(order.flags as string[]) ?? []} notes={order.ai_notes} />
+
+      {order.admin_remark && (
+        <Card>
+          <CardHeader><CardTitle>Admin Remark</CardTitle></CardHeader>
+          <CardContent>
+            <div
+              className="rounded-lg px-4 py-3"
+              style={{
+                backgroundColor: order.status === "APPROVED" ? "#DCFCE7" : order.status === "REJECTED" ? "#FEE2E2" : "#F9FAFB",
+                border: `1px solid ${order.status === "APPROVED" ? "#86EFAC" : order.status === "REJECTED" ? "#FCA5A5" : "var(--amz-border)"}`,
+              }}
+            >
+              <p
+                className="text-sm"
+                style={{ color: order.status === "APPROVED" ? "#166534" : order.status === "REJECTED" ? "#991B1B" : "var(--amz-text)" }}
+              >
+                {order.admin_remark}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

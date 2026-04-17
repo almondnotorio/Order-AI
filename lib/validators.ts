@@ -14,6 +14,7 @@ export const updateOrderSchema = z.object({
     .optional(),
   matched_sku_id: z.string().optional(),
   delivery_type: z.enum(["STANDARD", "RUSH"]).optional(),
+  admin_remark: z.string().max(1000).optional(),
 });
 
 export const createSkuSchema = z.object({
