@@ -13,25 +13,28 @@ interface PageHeaderProps {
 export function PageHeader({ title, subtitle, actionLabel, actionHref }: PageHeaderProps) {
   return (
     <div className="flex items-start justify-between mb-8">
+      {/* Title */}
       <div>
         <h1
           className="font-bold leading-tight"
           style={{
             fontFamily: "var(--font-serif, Georgia, serif)",
-            fontSize: "2rem",
+            fontSize: "1.875rem",
             color: "var(--brand-text)",
+            letterSpacing: "-0.01em",
           }}
         >
           {title}
         </h1>
         <p
-          className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em]"
+          className="mt-1 text-[10px] font-semibold uppercase tracking-[0.22em]"
           style={{ color: "var(--brand-muted)" }}
         >
           {subtitle}
         </p>
       </div>
 
+      {/* Right side */}
       <div className="flex items-center gap-3">
         {actionLabel && actionHref && (
           <Link

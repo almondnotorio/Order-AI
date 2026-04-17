@@ -26,10 +26,10 @@ export default async function AdminDashboardPage() {
     {
       label: "Total Orders",
       value: total,
-      iconBg: "#FFE8E8",
-      iconColor: "#E06060",
+      iconBg: "#FDECEA",
+      iconColor: "#C84B2F",
       icon: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
         </svg>
       ),
@@ -37,10 +37,10 @@ export default async function AdminDashboardPage() {
     {
       label: "Pending",
       value: pending,
-      iconBg: "#E8F0FF",
-      iconColor: "#4472C4",
+      iconBg: "#EEF2FF",
+      iconColor: "#4F46E5",
       icon: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),
@@ -48,10 +48,10 @@ export default async function AdminDashboardPage() {
     {
       label: "Needs Review",
       value: review,
-      iconBg: "#FFF5E0",
+      iconBg: "#FFFBEB",
       iconColor: "#D97706",
       icon: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
       ),
@@ -59,10 +59,10 @@ export default async function AdminDashboardPage() {
     {
       label: "Approved",
       value: approved,
-      iconBg: "#E8F8EE",
-      iconColor: "#16A34A",
+      iconBg: "#ECFDF5",
+      iconColor: "#059669",
       icon: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),
@@ -70,10 +70,10 @@ export default async function AdminDashboardPage() {
     {
       label: "AI Failed",
       value: failed,
-      iconBg: "#FFE8EC",
-      iconColor: "#DC2626",
+      iconBg: "#FFF1F2",
+      iconColor: "#E11D48",
       icon: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),
@@ -94,32 +94,29 @@ export default async function AdminDashboardPage() {
       <PageHeader title="Dashboard" subtitle="Overview of your order catalog" />
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 mb-6">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 mb-8">
         {stats.map((s) => (
           <div
             key={s.label}
-            className="rounded-xl p-5"
-            style={{
-              backgroundColor: "var(--brand-card)",
-              boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-            }}
+            className="rounded-xl p-5 bg-white"
+            style={{ border: "1px solid var(--brand-border)" }}
           >
-            <div className="flex items-start justify-between">
+            <div className="flex items-start justify-between mb-4">
               <p
-                className="text-[10px] font-semibold uppercase tracking-widest"
+                className="text-[10px] font-bold uppercase tracking-widest leading-none"
                 style={{ color: "var(--brand-muted)" }}
               >
                 {s.label}
               </p>
               <div
-                className="h-10 w-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                className="h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0"
                 style={{ backgroundColor: s.iconBg, color: s.iconColor }}
               >
                 {s.icon}
               </div>
             </div>
             <p
-              className="mt-3 text-3xl font-bold"
+              className="text-4xl font-bold leading-none"
               style={{ color: "var(--brand-text)" }}
             >
               {s.value}
@@ -130,25 +127,25 @@ export default async function AdminDashboardPage() {
 
       {/* Recently Added Orders */}
       <div
-        className="rounded-xl overflow-hidden"
-        style={{
-          backgroundColor: "var(--brand-card)",
-          boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-        }}
+        className="rounded-xl overflow-hidden bg-white"
+        style={{ border: "1px solid var(--brand-border)" }}
       >
         <div
           className="flex items-center justify-between px-6 py-4"
           style={{ borderBottom: "1px solid var(--brand-border)" }}
         >
           <h2
-            className="text-base font-semibold"
-            style={{ color: "var(--brand-text)" }}
+            className="text-lg font-semibold"
+            style={{
+              fontFamily: "var(--font-serif, Georgia, serif)",
+              color: "var(--brand-text)",
+            }}
           >
             Recently Added Orders
           </h2>
           <Link
             href="/admin/orders"
-            className="flex items-center gap-1 text-sm font-medium transition-colors hover:opacity-70"
+            className="flex items-center gap-1 text-sm font-medium transition-opacity hover:opacity-70"
             style={{ color: "var(--brand-muted)", textDecoration: "none" }}
           >
             View all
@@ -170,16 +167,16 @@ export default async function AdminDashboardPage() {
               <Link
                 key={order.id}
                 href={`/admin/orders/${order.id}`}
-                className="flex items-center gap-4 px-6 py-3.5 transition-colors hover:bg-black/[0.02]"
+                className="flex items-center gap-4 px-6 py-4 transition-colors hover:bg-[#FAF8F5]"
                 style={{
                   borderBottom: i < recentOrders.length - 1 ? "1px solid var(--brand-border)" : "none",
                   textDecoration: "none",
                 }}
               >
-                {/* Order icon */}
+                {/* Icon */}
                 <div
                   className="h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: "#F5F0E8", color: "#B0A898" }}
+                  style={{ backgroundColor: "#F0EDE6", color: "#B0A898" }}
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -189,7 +186,7 @@ export default async function AdminDashboardPage() {
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <p
-                    className="text-sm font-medium truncate"
+                    className="text-sm font-semibold truncate"
                     style={{ color: "var(--brand-text)" }}
                   >
                     {order.raw_input.slice(0, 72)}

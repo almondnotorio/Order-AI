@@ -3,30 +3,30 @@
 :root {
   --font-sans: var(--font-geist-sans);
 
-  /* Brand palette */
-  --brand-sidebar:   #1C1C1C;
-  --brand-accent:    #C04A2C;
-  --brand-accent-hover: #A33D22;
-  --brand-bg:        #F0EDE6;
-  --brand-card:      #FFFFFF;
-  --brand-border:    #E5DFD5;
-  --brand-text:      #1A1A1A;
-  --brand-muted:     #888888;
+  /* Brand palette — matches reference (final-sku.vercel.app) */
+  --brand-sidebar:      #1A1A1A;
+  --brand-accent:       #C84B2F;
+  --brand-accent-hover: #A83B22;
+  --brand-bg:           #F0EDE6;
+  --brand-card:         #FFFFFF;
+  --brand-border:       #E8E2D8;
+  --brand-text:         #1A1A1A;
+  --brand-muted:        #8A8A8A;
 
-  /* Legacy aliases (keep for shared components) */
-  --amz-dark:        #1C1C1C;
-  --amz-navy:        #1C1C1C;
-  --amz-orange:      #FF9900;
+  /* Aliases used by shared/customer components */
+  --amz-dark:        #1A1A1A;
+  --amz-navy:        #1A1A1A;
+  --amz-orange:      #C84B2F;
   --amz-yellow:      #FFD814;
   --amz-yellow-hover:#F7CA00;
   --amz-teal:        #0891B2;
   --amz-teal-hover:  #E0F2FE;
   --amz-bg:          #F0EDE6;
-  --amz-border:      #E5DFD5;
+  --amz-border:      #E8E2D8;
   --amz-text:        #1A1A1A;
-  --amz-text-muted:  #888888;
+  --amz-text-muted:  #8A8A8A;
   --amz-link:        #2563EB;
-  --amz-link-hover:  #C04A2C;
+  --amz-link-hover:  #C84B2F;
   --amz-red:         #DC2626;
   --amz-green:       #16A34A;
 }
