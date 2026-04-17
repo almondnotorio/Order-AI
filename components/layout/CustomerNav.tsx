@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 const navLinks = [
   { href: "/orders/new", label: "Place Order" },
-  { href: "/orders", label: "My Orders", exact: false },
+  { href: "/orders", label: "Orders", exact: false },
 ];
 
 export function CustomerNav() {
