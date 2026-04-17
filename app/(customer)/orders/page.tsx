@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
@@ -11,11 +11,27 @@ export default async function CustomerOrdersPage() {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
+  const viewer = await currentUser();
+  const isAdmin = viewer?.publicMetadata?.role === "admin";
+
   const orders = await prisma.order.findMany({
-    where: { user_id: userId },
+    where: isAdmin ? {} : { user_id: userId },
     orderBy: { created_at: "desc" },
-    include: { matched_sku: { select: { sku_code: true, description: true } } },
+    include: {
+      matched_sku: { select: { sku_code: true, description: true } },
+      user: { select: { name: true, email: true } },
+    },
   });
+
+  const headers = [
+    "Order",
+    ...(isAdmin ? ["Customer"] : []),
+    "SKU",
+    "Attributes",
+    "Confidence",
+    "Status",
+    "Date",
+  ];
 
   return (
     <div className="space-y-5">
@@ -23,24 +39,26 @@ export default async function CustomerOrdersPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold" style={{ color: "var(--amz-text)" }}>
-            My Orders
+            {isAdmin ? "All Orders" : "My Orders"}
           </h1>
           <p className="mt-0.5 text-sm" style={{ color: "var(--amz-text-muted)" }}>
             {orders.length} order{orders.length !== 1 ? "s" : ""}
           </p>
         </div>
-        <Link
-          href="/orders/new"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded text-sm font-bold transition-opacity hover:opacity-90"
-          style={{
-            backgroundColor: "var(--amz-yellow)",
-            color: "var(--amz-text)",
-            border: "1px solid #FCD200",
-            textDecoration: "none",
-          }}
-        >
-          + Place Order
-        </Link>
+        {!isAdmin && (
+          <Link
+            href="/orders/new"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded text-sm font-bold transition-opacity hover:opacity-90"
+            style={{
+              backgroundColor: "var(--amz-yellow)",
+              color: "var(--amz-text)",
+              border: "1px solid #FCD200",
+              textDecoration: "none",
+            }}
+          >
+            + Place Order
+          </Link>
+        )}
       </div>
 
       {orders.length === 0 ? (
@@ -61,20 +79,22 @@ export default async function CustomerOrdersPage() {
             No orders yet
           </h3>
           <p className="mt-1 text-sm" style={{ color: "var(--amz-text-muted)" }}>
-            Place your first order to get started.
+            {isAdmin ? "No orders have been placed yet." : "Place your first order to get started."}
           </p>
-          <Link
-            href="/orders/new"
-            className="mt-5 inline-block px-6 py-2 rounded text-sm font-bold transition-opacity hover:opacity-90"
-            style={{
-              backgroundColor: "var(--amz-yellow)",
-              color: "var(--amz-text)",
-              border: "1px solid #FCD200",
-              textDecoration: "none",
-            }}
-          >
-            Place an Order
-          </Link>
+          {!isAdmin && (
+            <Link
+              href="/orders/new"
+              className="mt-5 inline-block px-6 py-2 rounded text-sm font-bold transition-opacity hover:opacity-90"
+              style={{
+                backgroundColor: "var(--amz-yellow)",
+                color: "var(--amz-text)",
+                border: "1px solid #FCD200",
+                textDecoration: "none",
+              }}
+            >
+              Place an Order
+            </Link>
+          )}
         </div>
       ) : (
         <div
@@ -84,14 +104,14 @@ export default async function CustomerOrdersPage() {
           <table className="min-w-full">
             <thead>
               <tr style={{ backgroundColor: "#F7F5F2" }}>
-                {["Order", "SKU", "Attributes", "Confidence", "Status", "Date"].map((h, i) => (
+                {headers.map((h) => (
                   <th
                     key={h}
                     className={[
                       "px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide",
-                      i === 2 ? "hidden lg:table-cell" : "",
-                      i === 3 ? "hidden md:table-cell" : "",
-                      i === 5 ? "hidden lg:table-cell" : "",
+                      h === "Attributes" ? "hidden lg:table-cell" : "",
+                      h === "Confidence" ? "hidden md:table-cell" : "",
+                      h === "Date" ? "hidden lg:table-cell" : "",
                     ].join(" ")}
                     style={{ color: "var(--amz-text-muted)", borderBottom: "1px solid var(--amz-border)" }}
                   >
@@ -134,6 +154,20 @@ export default async function CustomerOrdersPage() {
                         </p>
                       </Link>
                     </td>
+
+                    {/* Customer (admin only) */}
+                    {isAdmin && (
+                      <td className="px-5 py-3.5">
+                        {order.user.name && (
+                          <p className="text-sm font-medium" style={{ color: "var(--amz-text)" }}>
+                            {order.user.name}
+                          </p>
+                        )}
+                        <p className="text-xs" style={{ color: "var(--amz-text-muted)" }}>
+                          {order.user.email}
+                        </p>
+                      </td>
+                    )}
 
                     {/* Matched SKU */}
                     <td className="px-5 py-3.5">
