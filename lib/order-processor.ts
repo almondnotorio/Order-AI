@@ -1,9 +1,23 @@
 import { prisma } from "@/lib/prisma";
-import { processOrderWithAI } from "@/lib/claude";
-import { AIStatus, DeliveryType, OrderStatus } from "@/app/generated/prisma/client";
+import { processOrderWithAI, AIOrderResult } from "@/lib/claude";
+import { AIStatus, DeliveryType, OrderStatus, SKU } from "@/app/generated/prisma/client";
+
+function matchSKU(skuCatalog: SKU[], parsed: AIOrderResult["parsed"]): SKU | null {
+  if (!parsed.width_in || !parsed.height_in || !parsed.reflectivity) return null;
+  return (
+    skuCatalog.find(
+      (s) =>
+        s.width_in === parsed.width_in &&
+        s.height_in === parsed.height_in &&
+        s.thickness === parsed.thickness &&
+        s.reflectivity === parsed.reflectivity &&
+        s.sides === parsed.sides &&
+        s.material === (parsed.material ?? "ALUMINUM")
+    ) ?? null
+  );
+}
 
 export async function processOrder(orderId: string): Promise<void> {
-  // Mark as processing
   await prisma.order.update({
     where: { id: orderId },
     data: { ai_status: AIStatus.PROCESSING, status: OrderStatus.PROCESSING },
@@ -18,15 +32,15 @@ export async function processOrder(orderId: string): Promise<void> {
       where: { active: true },
     });
 
-    const result = await processOrderWithAI(order.raw_input, skuCatalog);
+    const result = await processOrderWithAI(order.raw_input);
 
-    // Find matched SKU id
-    let matchedSkuId: string | null = null;
-    if (result.matched_sku_code) {
-      const sku = await prisma.sKU.findUnique({
-        where: { sku_code: result.matched_sku_code },
-      });
-      matchedSkuId = sku?.id ?? null;
+    // Programmatic SKU matching — prevents AI from biasing attribute extraction toward catalog entries
+    const matchedSKU = matchSKU(skuCatalog, result.parsed);
+    const matchedSkuId = matchedSKU?.id ?? null;
+    const matched_sku_code = matchedSKU?.sku_code ?? null;
+
+    if (!matchedSKU) {
+      result.flags.push("No matching SKU found — manual review required");
     }
 
     const hasFlags = result.flags.length > 0;
@@ -54,7 +68,7 @@ export async function processOrder(orderId: string): Promise<void> {
         matched_sku_id: matchedSkuId,
         ai_notes: result.notes,
         flags: result.flags,
-        ai_raw_response: result as object,
+        ai_raw_response: { ...result, matched_sku_code } as object,
         delivery_type: result.parsed.delivery as DeliveryType,
         processed_at: new Date(),
       },

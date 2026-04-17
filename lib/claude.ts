@@ -1,12 +1,11 @@
 import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
-import { SKU } from "@/app/generated/prisma/client";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const SYSTEM_PROMPT = `You are a signage order processing assistant for a professional sign manufacturing company.
-Your job is to extract structured product attributes from natural language order requests and match them to the SKU catalog.
+Your job is to extract structured product attributes from natural language order requests.
 
 ## Attribute Definitions
 
@@ -43,20 +42,17 @@ DELIVERY: STANDARD or RUSH
 QUANTITY: Integer. Default to 1 if not mentioned (do not flag if unspecified).
 
 ## Confidence Scoring
-- 1.0 = exact match all attributes specified clearly
+- 1.0 = all attributes specified clearly
 - 0.9 = one minor attribute defaulted or inferred with confidence
 - 0.7–0.8 = one or two attributes ambiguous or inferred
 - 0.5–0.6 = multiple attributes missing or uncertain
-- < 0.5 = major missing info, contradictory, or no reasonable match
+- < 0.5 = major missing info or contradictory
 
 ## Flag Rules
 Add a human-readable flag string for:
 - Any attribute that was defaulted (except material defaulting to ALUMINUM and delivery defaulting to STANDARD)
 - Any attribute that is ambiguous or contradictory
-- Dimensions not found in catalog
-- No matching SKU found
-- Quantity > 500 (unusual, possible typo)
-- Conflicting attributes (e.g., .080 thickness with EG reflectivity — this combo doesn't exist)`;
+- Quantity > 500 (unusual, possible typo)`;
 
 const aiResultSchema = z.object({
   parsed: z.object({
@@ -69,28 +65,16 @@ const aiResultSchema = z.object({
     delivery: z.enum(["STANDARD", "RUSH"]),
     quantity: z.number().int().positive(),
   }),
-  matched_sku_code: z.string().nullable(),
   confidence_score: z.number().min(0).max(1),
   flags: z.array(z.string()),
   notes: z.string(),
 });
 
-export type AIOrderResult = z.infer<typeof aiResultSchema>;
+export type AIOrderResult = z.infer<typeof aiResultSchema> & {
+  matched_sku_code: string | null;
+};
 
-function buildUserMessage(rawInput: string, skuCatalog: SKU[]): string {
-  const catalogLines = skuCatalog
-    .filter((s) => s.active)
-    .map(
-      (s) =>
-        `  ${s.sku_code}: ${s.width_in}x${s.height_in}" | ${s.thickness} | ${s.reflectivity} | ${s.sides} | ${s.material}`
-    )
-    .join("\n");
-
-  return `## Available SKU Catalog\n${catalogLines}\n\n## Customer Order Input\n"${rawInput}"`;
-}
-
-// Rule-based fallback parser used when the AI API is unavailable (e.g. quota exceeded).
-function processOrderWithRules(rawInput: string, skuCatalog: SKU[]): AIOrderResult {
+function processOrderWithRules(rawInput: string): AIOrderResult {
   const text = rawInput.toLowerCase();
   const flags: string[] = [];
 
@@ -155,64 +139,24 @@ function processOrderWithRules(rawInput: string, skuCatalog: SKU[]): AIOrderResu
   const quantity = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
   if (quantity > 500) flags.push("Quantity > 500 — possible typo, manual review required");
 
-  // SKU matching
-  const activeSKUs = skuCatalog.filter((s) => s.active);
-  let matched_sku_code: string | null = null;
-  let confidence_score = 0.3; // base confidence for rule-based
-
-  if (width_in && height_in && reflectivity) {
-    const match = activeSKUs.find(
-      (s) =>
-        s.width_in === width_in &&
-        s.height_in === height_in &&
-        s.thickness === thickness &&
-        s.reflectivity === reflectivity &&
-        s.sides === sides &&
-        s.material === material
-    );
-    if (match) {
-      matched_sku_code = match.sku_code;
-      confidence_score = flags.length === 1 ? 0.75 : 0.6; // higher when only the fallback flag
-    } else {
-      flags.push("No matching SKU found — manual review required");
-      confidence_score = 0.3;
-    }
-  } else {
-    flags.push("Insufficient attributes to match a SKU — manual review required");
-  }
+  const confidence_score = flags.length === 0 ? 0.6 : flags.length === 1 ? 0.5 : 0.3;
 
   return {
     parsed: { width_in, height_in, thickness, reflectivity, sides, material, delivery, quantity },
-    matched_sku_code,
+    matched_sku_code: null,
     confidence_score,
     flags,
     notes: "Processed by rule-based parser.",
   };
 }
 
-function verifySkuInCatalog(result: AIOrderResult, skuCatalog: SKU[]): AIOrderResult {
-  if (!result.matched_sku_code) return result;
-  const exists = skuCatalog.some(
-    (s) => s.sku_code === result.matched_sku_code && s.active
-  );
-  if (!exists) {
-    result.matched_sku_code = null;
-    result.flags.push("AI suggested SKU was not found in the active catalog");
-    result.confidence_score = Math.min(result.confidence_score, 0.4);
-  }
-  return result;
-}
-
-export async function processOrderWithAI(
-  rawInput: string,
-  skuCatalog: SKU[]
-): Promise<AIOrderResult> {
+export async function processOrderWithAI(rawInput: string): Promise<AIOrderResult> {
   try {
     const response = await client.chat.completions.parse({
       model: "gpt-4o",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: buildUserMessage(rawInput, skuCatalog) },
+        { role: "user", content: `## Customer Order Input\n"${rawInput}"` },
       ],
       response_format: zodResponseFormat(aiResultSchema, "order_result"),
     });
@@ -222,10 +166,10 @@ export async function processOrderWithAI(
       throw new Error("AI response could not be parsed into the expected schema");
     }
 
-    return verifySkuInCatalog(validated, skuCatalog);
+    return { ...validated, matched_sku_code: null };
   } catch (err) {
     if (err instanceof OpenAI.RateLimitError) {
-      return verifySkuInCatalog(processOrderWithRules(rawInput, skuCatalog), skuCatalog);
+      return processOrderWithRules(rawInput);
     }
     throw err;
   }
