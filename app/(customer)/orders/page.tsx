@@ -4,6 +4,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { OrderStatusBadge, ConfidenceBadge } from "@/components/ui/Badge";
 import { formatDateTime, truncate } from "@/lib/utils";
+import { ApproveRejectButtons } from "@/components/orders/ApproveRejectButtons";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +33,7 @@ export default async function CustomerOrdersPage() {
     "Status",
     "Remark",
     "Date",
+    ...(isAdmin ? ["Actions"] : []),
   ];
 
   return (
@@ -232,6 +234,13 @@ export default async function CustomerOrdersPage() {
                         {formatDateTime(order.created_at)}
                       </span>
                     </td>
+
+                    {/* Actions (admin only) */}
+                    {isAdmin && (
+                      <td className="px-5 py-3.5">
+                        <ApproveRejectButtons orderId={order.id} currentStatus={order.status} />
+                      </td>
+                    )}
                   </tr>
                 );
               })}
