@@ -94,10 +94,12 @@ export default async function CustomerOrderDetailPage({ params }: Params) {
         </div>
       ) : (
         <Card>
-          <CardContent className="py-8 text-center text-sm" style={{ color: "var(--amz-text-muted)" }}>
-            {order.ai_status === "PROCESSING"
-              ? "AI is processing your order…"
-              : "Order is queued for processing."}
+          <CardContent className="py-8 text-center text-sm">
+            <span style={{ color: "var(--amz-text-muted)" }}>
+              {order.ai_status === "PROCESSING"
+                ? "AI is processing your order…"
+                : "Order is queued for processing."}
+            </span>
           </CardContent>
         </Card>
       )}
