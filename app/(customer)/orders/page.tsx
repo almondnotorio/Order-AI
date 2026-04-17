@@ -2,9 +2,10 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { Card, CardContent } from "@/components/ui/Card";
-import { OrderStatusBadge, AIStatusBadge, ConfidenceBadge } from "@/components/ui/Badge";
+import { OrderStatusBadge, ConfidenceBadge } from "@/components/ui/Badge";
 import { formatDateTime, truncate } from "@/lib/utils";
+
+export const dynamic = "force-dynamic";
 
 export default async function CustomerOrdersPage() {
   const { userId } = await auth();
@@ -38,72 +39,80 @@ export default async function CustomerOrdersPage() {
             textDecoration: "none",
           }}
         >
-          + New Order
+          + Place Order
         </Link>
       </div>
 
       {orders.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <div
-              className="mx-auto h-12 w-12 rounded-full flex items-center justify-center mb-4"
-              style={{ backgroundColor: "#F0F2F2" }}
-            >
-              <svg className="h-6 w-6" style={{ color: "#878787" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </div>
-            <h3 className="text-sm font-semibold" style={{ color: "var(--amz-text)" }}>No orders yet</h3>
-            <p className="mt-1 text-sm" style={{ color: "var(--amz-text-muted)" }}>Submit your first order to get started.</p>
-            <Link
-              href="/orders/new"
-              className="mt-4 inline-block text-sm font-medium"
-              style={{ color: "var(--amz-link)" }}
-            >
-              Submit an order ›
-            </Link>
-          </CardContent>
-        </Card>
+        <div
+          className="rounded-xl py-16 text-center"
+          style={{ backgroundColor: "#fff", border: "1px solid var(--amz-border)" }}
+        >
+          <div
+            className="mx-auto h-14 w-14 rounded-full flex items-center justify-center mb-4"
+            style={{ backgroundColor: "#F0F2F2" }}
+          >
+            <svg className="h-7 w-7" style={{ color: "#878787" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <h3 className="text-sm font-semibold" style={{ color: "var(--amz-text)" }}>
+            No orders yet
+          </h3>
+          <p className="mt-1 text-sm" style={{ color: "var(--amz-text-muted)" }}>
+            Place your first order to get started.
+          </p>
+          <Link
+            href="/orders/new"
+            className="mt-5 inline-block px-6 py-2 rounded text-sm font-bold transition-opacity hover:opacity-90"
+            style={{
+              backgroundColor: "var(--amz-yellow)",
+              color: "var(--amz-text)",
+              border: "1px solid #FCD200",
+              textDecoration: "none",
+            }}
+          >
+            Place an Order
+          </Link>
+        </div>
       ) : (
-        <Card>
-          <div className="overflow-hidden rounded">
-            <table className="min-w-full">
-              <thead>
-                <tr style={{ backgroundColor: "#F0F2F2" }}>
+        <div
+          className="rounded-xl overflow-hidden"
+          style={{ backgroundColor: "#fff", border: "1px solid var(--amz-border)" }}
+        >
+          <table className="min-w-full">
+            <thead>
+              <tr style={{ backgroundColor: "#F7F5F2" }}>
+                {["Order", "SKU", "Attributes", "Confidence", "Status", "Date"].map((h, i) => (
                   <th
-                    className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide"
+                    key={h}
+                    className={[
+                      "px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide",
+                      i === 2 ? "hidden lg:table-cell" : "",
+                      i === 3 ? "hidden md:table-cell" : "",
+                      i === 5 ? "hidden lg:table-cell" : "",
+                    ].join(" ")}
                     style={{ color: "var(--amz-text-muted)", borderBottom: "1px solid var(--amz-border)" }}
                   >
-                    Order
+                    {h}
                   </th>
-                  <th
-                    className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide hidden sm:table-cell"
-                    style={{ color: "var(--amz-text-muted)", borderBottom: "1px solid var(--amz-border)" }}
-                  >
-                    SKU
-                  </th>
-                  <th
-                    className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide hidden md:table-cell"
-                    style={{ color: "var(--amz-text-muted)", borderBottom: "1px solid var(--amz-border)" }}
-                  >
-                    Confidence
-                  </th>
-                  <th
-                    className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: "var(--amz-text-muted)", borderBottom: "1px solid var(--amz-border)" }}
-                  >
-                    Status
-                  </th>
-                  <th
-                    className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide hidden lg:table-cell"
-                    style={{ color: "var(--amz-text-muted)", borderBottom: "1px solid var(--amz-border)" }}
-                  >
-                    Date
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((order, i) => (
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((order, i) => {
+                const attrs = [
+                  order.parsed_width && order.parsed_height
+                    ? `${order.parsed_width}×${order.parsed_height}"`
+                    : null,
+                  order.parsed_reflectivity,
+                  order.parsed_thickness,
+                ]
+                  .filter(Boolean)
+                  .join(" · ");
+
+                return (
                   <tr
                     key={order.id}
                     className="transition-colors hover:bg-[#F7FAFA]"
@@ -111,53 +120,71 @@ export default async function CustomerOrdersPage() {
                       borderBottom: i < orders.length - 1 ? "1px solid var(--amz-border)" : "none",
                     }}
                   >
-                    <td className="px-5 py-3">
+                    {/* Order description */}
+                    <td className="px-5 py-3.5">
                       <Link href={`/orders/${order.id}`} style={{ textDecoration: "none" }}>
                         <p
                           className="text-sm font-medium hover:underline"
                           style={{ color: "var(--amz-link)" }}
                         >
-                          {truncate(order.raw_input, 60)}
+                          {truncate(order.raw_input, 55)}
                         </p>
                         <p className="text-xs mt-0.5 font-mono" style={{ color: "var(--amz-text-muted)" }}>
-                          {order.id.slice(0, 8)}…
+                          #{order.id.slice(0, 8)}
                         </p>
                       </Link>
                     </td>
-                    <td className="px-5 py-3 hidden sm:table-cell">
+
+                    {/* Matched SKU */}
+                    <td className="px-5 py-3.5">
                       {order.matched_sku ? (
-                        <span
-                          className="font-mono text-xs px-2 py-0.5 rounded"
-                          style={{ backgroundColor: "#F0F2F2", color: "var(--amz-text)" }}
-                        >
-                          {order.matched_sku.sku_code}
-                        </span>
+                        <div>
+                          <span
+                            className="font-mono text-xs px-2 py-0.5 rounded"
+                            style={{ backgroundColor: "#F0F2F2", color: "var(--amz-text)" }}
+                          >
+                            {order.matched_sku.sku_code}
+                          </span>
+                          {order.matched_sku.description && (
+                            <p className="text-xs mt-0.5" style={{ color: "var(--amz-text-muted)" }}>
+                              {truncate(order.matched_sku.description, 30)}
+                            </p>
+                          )}
+                        </div>
                       ) : (
                         <span className="text-xs" style={{ color: "var(--amz-text-muted)" }}>—</span>
                       )}
                     </td>
-                    <td className="px-5 py-3 hidden md:table-cell">
+
+                    {/* Parsed attributes */}
+                    <td className="px-5 py-3.5 hidden lg:table-cell">
+                      <span className="text-xs" style={{ color: "var(--amz-text)" }}>
+                        {attrs || "—"}
+                      </span>
+                    </td>
+
+                    {/* Confidence */}
+                    <td className="px-5 py-3.5 hidden md:table-cell">
                       <ConfidenceBadge score={order.confidence_score} />
                     </td>
-                    <td className="px-5 py-3">
-                      <div className="flex flex-col gap-1">
-                        <OrderStatusBadge status={order.status} />
-                        {order.ai_status !== "COMPLETE" && (
-                          <AIStatusBadge status={order.ai_status} />
-                        )}
-                      </div>
+
+                    {/* Status */}
+                    <td className="px-5 py-3.5">
+                      <OrderStatusBadge status={order.status} />
                     </td>
-                    <td className="px-5 py-3 hidden lg:table-cell">
+
+                    {/* Date */}
+                    <td className="px-5 py-3.5 hidden lg:table-cell">
                       <span className="text-xs" style={{ color: "var(--amz-text-muted)" }}>
                         {formatDateTime(order.created_at)}
                       </span>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

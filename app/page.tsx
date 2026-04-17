@@ -11,5 +11,5 @@ export default async function RootPage() {
   const user = await currentUser();
   const isAdmin = user?.publicMetadata?.role === "admin";
 
-  redirect(isAdmin ? "/admin/dashboard" : "/dashboard");
+  redirect(isAdmin ? "/admin/dashboard" : "/orders/new");
 }
